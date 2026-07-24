@@ -67,12 +67,12 @@ function showToast(message, type = 'success') {
   if (!container) return;
 
   const toast = document.createElement('div');
-  let icon = 'fa-circle-check text-cyan-400';
-  let borderColor = 'border-cyan-500/40';
+  let icon = 'fa-circle-check text-orchid-tint';
+  let borderColor = 'border-purple-300/40';
 
   if (type === 'info') {
-    icon = 'fa-circle-info text-blue-400';
-    borderColor = 'border-blue-500/40';
+    icon = 'fa-circle-info text-sky-300';
+    borderColor = 'border-sky-400/40';
   } else if (type === 'error') {
     icon = 'fa-circle-xmark text-rose-400';
     borderColor = 'border-rose-500/40';
