@@ -1,15 +1,21 @@
 import OpenAI from 'openai';
 
-// Using OpenRouter (OpenAI-compatible, free models available)
-export const openai = new OpenAI({
-  apiKey: process.env.OPENROUTER_API_KEY,
-  baseURL: 'https://openrouter.ai/api/v1',
-  timeout: 30000,
-  defaultHeaders: {
-    'HTTP-Referer': 'http://localhost:3000',
-    'X-Title': 'KosanKu Pro',
-  },
-});
+// Lazy initialization — env vars only available at runtime, not build time
+let _openai: OpenAI | null = null;
+export function getOpenAI(): OpenAI {
+  if (!_openai) {
+    _openai = new OpenAI({
+      apiKey: process.env.OPENROUTER_API_KEY,
+      baseURL: 'https://openrouter.ai/api/v1',
+      timeout: 30000,
+      defaultHeaders: {
+        'HTTP-Referer': 'http://localhost:3000',
+        'X-Title': 'KosanKu Pro',
+      },
+    });
+  }
+  return _openai;
+}
 
 const MODELS = [
   'google/gemma-4-31b-it:free',
@@ -61,7 +67,7 @@ export async function chatCompletion(
     }
 
     try {
-      const result = await withRetry(() => openai.chat.completions.create(params), 1);
+      const result = await withRetry(() => getOpenAI().chat.completions.create(params), 1);
       return result;
     } catch (err: any) {
       console.log(`[AI] Model ${model} failed (status: ${err?.status}), trying next...`);
@@ -77,11 +83,11 @@ export async function chatCompletion(
     temperature: 0.7,
     max_tokens: 1024,
   };
-  return withRetry(() => openai.chat.completions.create(fallbackParams), 2);
+  return withRetry(() => getOpenAI().chat.completions.create(fallbackParams), 2);
 }
 
 export async function visionOCR(imageBase64: string, mimeType: string) {
-  const response = await withRetry(() => openai.chat.completions.create({
+  const response = await withRetry(() => getOpenAI().chat.completions.create({
     model: VISION_MODEL,
     messages: [
       {
